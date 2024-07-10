@@ -69,7 +69,7 @@ class GameButton(miru.Button):
 
 
 @plugin.include
-@crescent.command(name="play", description="Start playing linguesser", dm_enabled=False)
+@crescent.command(name="play", description="Start playing linguessr", dm_enabled=False, default_member_permissions=hikari.Permissions.USE_APPLICATION_COMMANDS)
 class Game:
     difficulty = crescent.option(
         int,
