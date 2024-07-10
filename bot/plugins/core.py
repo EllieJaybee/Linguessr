@@ -5,6 +5,7 @@ import hikari
 import miru
 
 import aiohttp
+import random
 
 from bot.__main__ import Model
 from bot.env.secret import LANGKEY
@@ -14,7 +15,7 @@ plugin = Plugin()
 
 detectlanguage.configuration.api_key = LANGKEY
 
-language_table = {}
+language_table: dict[str, str] = {}
 
 
 @plugin.include
@@ -71,15 +72,18 @@ class GameButton(miru.Button):
 class Game:
     async def callback(self, ctx: crescent.Context):
         await ctx.defer()
-        words, englishes, choice_languages = await self.get_words()
+        words, englishes = await self.get_words()
         language_code: str = await self.get_language_code(words)
+        choice_languages: list[str] = []
+        filtered_table_keys = list(language_table.keys())
+        filtered_table_keys.remove(language_code)
+        for index in range(difficulties[self.difficulty]):
+            choice_languages.append(language_table[random.choice(filtered_table_keys)].split(",")[0].split("(")[0].strip())
         language: str = language_table[language_code]
         embed = await self.build_embed(words, englishes)
         gameview = GameView()
-        if not any([_ in language for _ in choice_languages]):
-            choice_languages.pop()
-            choice_languages.append(language.split(",")[0].split("(")[0].strip())
-            choice_languages.sort()
+        choice_languages.append(language.split(",")[0].split("(")[0].strip())
+        choice_languages.sort()
         for choice_language in choice_languages:
             gameview.add_item(GameButton(choice_language, language, ctx.user.id))
         await ctx.respond(embed=embed, components=gameview)
@@ -102,10 +106,7 @@ class Game:
                 englishes: list[str] = [
                     _.get_text() for _ in soup.find_all(class_="lewy")
                 ]
-                choice_languages: list[str] = [
-                    _.get_text() for _ in soup.find_all(class_="guzik nieb")
-                ]
-                return (words, englishes, choice_languages)
+                return (words, englishes)
 
     async def get_language_code(self, words: list[str]):
         for word in words:
