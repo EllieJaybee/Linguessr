@@ -21,11 +21,11 @@ language_table: dict[str, str] = {}
 @plugin.include
 @crescent.event
 async def fetch_language_table(_: hikari.StartedEvent):
-    async with aiohttp.ClientSession() as sess:
-        async with sess.get(
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
             "https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes"
-        ) as resp:
-            soup = bs(await resp.read(), "html.parser")
+        ) as response:
+            soup = bs(await response.read(), "html.parser")
             table = soup.find(id="Table", class_="wikitable sortable")
             rows = table.find_all("tr")[1:]
             for row in rows:
@@ -114,11 +114,11 @@ class Game:
         return embed
 
     async def get_words(self):
-        async with aiohttp.ClientSession() as sess:
-            async with sess.get(
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
                 "https://baltoslav.eu/adhadaj/index.php?co=g&mova=en"
-            ) as resp:
-                soup = bs(await resp.read(), "html.parser")
+            ) as response:
+                soup = bs(await response.read(), "html.parser")
                 words: list[str] = [_.get_text() for _ in soup.find_all(class_="prawy")]
                 englishes: list[str] = [
                     _.get_text() for _ in soup.find_all(class_="lewy")
