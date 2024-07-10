@@ -21,7 +21,9 @@ language_table = {}
 @crescent.event
 async def fetch_language_table(_: hikari.StartedEvent):
     async with aiohttp.ClientSession() as sess:
-        async with sess.get("https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes") as resp:
+        async with sess.get(
+            "https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes"
+        ) as resp:
             soup = bs(await resp.read(), "html.parser")
             table = soup.find(id="Table", class_="wikitable sortable")
             rows = table.find_all("tr")[1:]
@@ -34,7 +36,7 @@ async def fetch_language_table(_: hikari.StartedEvent):
 class GameView(miru.View):
     def __init__(self):
         super().__init__(timeout=600)
-    
+
     async def on_timeout(self):
         await self.message.edit(components=None)
 
@@ -45,7 +47,7 @@ class GameButton(miru.Button):
         self.answer = answer
         self.author_id = author_id
         super().__init__(label=label)
-    
+
     async def callback(self, ctx: miru.ViewContext):
         if ctx.user.id != self.author_id:
             return
@@ -56,7 +58,9 @@ class GameButton(miru.Button):
             embed.color = "00ff00"
             await ctx.edit_response(embed=embed)
         else:
-            await ctx.respond(f"{ctx.member.display_name} got it wrong, the answer is {self.answer.split(",")[0].split("(")[0].strip()}")
+            await ctx.respond(
+                f"{ctx.member.display_name} got it wrong, the answer is {self.answer.split(",")[0].split("(")[0].strip()}"
+            )
             embed = ctx.message.embeds[0]
             embed.color = "ff0000"
             await ctx.edit_response(embed=embed)
@@ -82,7 +86,6 @@ class Game:
         plugin.model.miru.start_view(gameview)
         await gameview.wait()
 
-
     async def build_embed(self, words: list[str], englishes: list[str]):
         embed = hikari.Embed(title="Guess the language!", color="C721B1")
         for word, english in zip(words, englishes):
@@ -91,16 +94,22 @@ class Game:
 
     async def get_words(self):
         async with aiohttp.ClientSession() as sess:
-            async with sess.get("https://baltoslav.eu/adhadaj/index.php?co=g&mova=en") as resp:
+            async with sess.get(
+                "https://baltoslav.eu/adhadaj/index.php?co=g&mova=en"
+            ) as resp:
                 soup = bs(await resp.read(), "html.parser")
                 words: list[str] = [_.get_text() for _ in soup.find_all(class_="prawy")]
-                englishes: list[str] = [_.get_text() for _ in soup.find_all(class_="lewy")]
-                choice_languages: list[str] = [_.get_text() for _ in soup.find_all(class_="guzik nieb")]
+                englishes: list[str] = [
+                    _.get_text() for _ in soup.find_all(class_="lewy")
+                ]
+                choice_languages: list[str] = [
+                    _.get_text() for _ in soup.find_all(class_="guzik nieb")
+                ]
                 return (words, englishes, choice_languages)
 
     async def get_language_code(self, words: list[str]):
         for word in words:
             detected_languages = detectlanguage.detect(word)
             for detected_language in detected_languages:
-                if detected_language['isReliable']:
-                    return detected_language['language']
+                if detected_language["isReliable"]:
+                    return detected_language["language"]
