@@ -69,8 +69,15 @@ class GameButton(miru.Button):
 
 
 @plugin.include
-@crescent.command(name="play", description="Start playing linguesser")
+@crescent.command(name="play", description="Start playing linguesser", dm_enabled=False)
 class Game:
+    difficulty = crescent.option(
+        int,
+        "Difficulty of the game",
+        default=2,
+        choices=[("easy", 2), ("normal", 4)],
+    )
+
     async def callback(self, ctx: crescent.Context):
         await ctx.defer()
         words, englishes = await self.get_words()
@@ -78,17 +85,26 @@ class Game:
         choice_languages: list[str] = []
         filtered_table_keys = list(language_table.keys())
         filtered_table_keys.remove(language_code)
-        for index in range(difficulties[self.difficulty]):
-            choice_languages.append(language_table[random.choice(filtered_table_keys)].split(",")[0].split("(")[0].strip())
+
+        for _ in range(self.difficulty):
+            choice_languages.append(
+                language_table[random.choice(filtered_table_keys)]
+                .split(",")[0]
+                .split("(")[0]
+                .strip()
+            )
         language: str = language_table[language_code]
         embed = await self.build_embed(words, englishes)
         gameview = GameView()
         choice_languages.append(language.split(",")[0].split("(")[0].strip())
         choice_languages.sort()
+
         for choice_language in choice_languages:
             gameview.add_item(GameButton(choice_language, language, ctx.user.id))
+
         await ctx.respond(embed=embed, components=gameview)
         plugin.model.miru.start_view(gameview)
+
         await gameview.wait()
 
     async def build_embed(self, words: list[str], englishes: list[str]):
