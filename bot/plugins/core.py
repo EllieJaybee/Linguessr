@@ -65,6 +65,7 @@ class GameButton(miru.Button):
             embed = ctx.message.embeds[0]
             embed.color = "ff0000"
             await ctx.edit_response(embed=embed)
+        self.view.stop()
 
 
 @plugin.include
