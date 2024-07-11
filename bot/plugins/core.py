@@ -90,10 +90,25 @@ class Game:
         self.ctx = ctx
         words, englishes = await self.get_words()
         language_code: str = await self.get_language_code(words)
+        choice_languages = await self.get_wrong_languages(language_code)
+        language: str = language_table[language_code]
+        choice_languages.append(language.split(",")[0].split("(")[0].strip())
+        random.shuffle(choice_languages)
+        await self.send_message(words, englishes, choice_languages, language)
+
+    async def send_message(self, words, englishes, choice_languages, language):
+        embed = await self.build_embed(words, englishes)
+        gameview = GameView()
+        for choice_language in choice_languages:
+            gameview.add_item(GameButton(choice_language, language, self.ctx.user.id))
+        await self.ctx.respond(embed=embed, components=gameview)
+        plugin.model.miru.start_view(gameview)
+        await gameview.wait()
+
+    async def get_wrong_languages(self, code):
         choice_languages: list[str] = []
         filtered_table_keys = list(language_table.keys())
-        filtered_table_keys.remove(language_code)
-
+        filtered_table_keys.remove(code)
         for _ in range(self.difficulty):
             choice_languages.append(
                 language_table[random.choice(filtered_table_keys)]
@@ -101,19 +116,7 @@ class Game:
                 .split("(")[0]
                 .strip()
             )
-        language: str = language_table[language_code]
-        embed = await self.build_embed(words, englishes)
-        gameview = GameView()
-        choice_languages.append(language.split(",")[0].split("(")[0].strip())
-        choice_languages.sort()
-
-        for choice_language in choice_languages:
-            gameview.add_item(GameButton(choice_language, language, ctx.user.id))
-
-        await ctx.respond(embed=embed, components=gameview)
-        plugin.model.miru.start_view(gameview)
-
-        await gameview.wait()
+        return choice_languages
 
     async def build_embed(self, words: list[str], englishes: list[str]):
         embed = hikari.Embed(title="Guess the language!", color="C721B1")
