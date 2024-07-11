@@ -62,13 +62,21 @@ class GameButton(miru.Button):
                 f"{ctx.member.display_name} got it wrong, the answer is {self.answer.split(",")[0].split("(")[0].strip()}"
             )
             embed.color = "ff0000"
-        embed.set_footer(text=f"{ctx.member.display_name} guessed {self.label}!", icon=ctx.member.display_avatar_url)
+        embed.set_footer(
+            text=f"{ctx.member.display_name} guessed {self.label}!",
+            icon=ctx.member.display_avatar_url,
+        )
         await ctx.edit_response(embed=embed)
         self.view.stop()
 
 
 @plugin.include
-@crescent.command(name="play", description="Start playing linguessr", dm_enabled=False, default_member_permissions=hikari.Permissions.USE_APPLICATION_COMMANDS)
+@crescent.command(
+    name="play",
+    description="Start playing linguessr",
+    dm_enabled=False,
+    default_member_permissions=hikari.Permissions.USE_APPLICATION_COMMANDS,
+)
 class Game:
     difficulty = crescent.option(
         int,
@@ -109,7 +117,10 @@ class Game:
 
     async def build_embed(self, words: list[str], englishes: list[str]):
         embed = hikari.Embed(title="Guess the language!", color="C721B1")
-        embed.set_footer(text=f"{self.ctx.member.display_name} is playing", icon=self.ctx.member.display_avatar_url)
+        embed.set_footer(
+            text=f"{self.ctx.member.display_name} is playing",
+            icon=self.ctx.member.display_avatar_url,
+        )
         for word, english in zip(words, englishes):
             if self.difficulty == 4:
                 english = random.choice([english, "???"])
@@ -129,7 +140,7 @@ class Game:
                 return (words, englishes)
 
     async def get_language_code(self, words: list[str]):
-        detected_languages = detectlanguage.detect(' '.join(words))
+        detected_languages = detectlanguage.detect(" ".join(words))
         for detected_language in detected_languages:
             if detected_language["isReliable"]:
                 return detected_language["language"]
