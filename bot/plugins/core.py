@@ -53,18 +53,17 @@ class GameButton(miru.Button):
         if ctx.user.id != self.author_id:
             return
         await ctx.edit_response(components=None)
+        embed = ctx.message.embeds[0]
         if self.label in self.answer:
             await ctx.respond(f"{ctx.member.display_name} got {self.label} correct!")
-            embed = ctx.message.embeds[0]
             embed.color = "00ff00"
-            await ctx.edit_response(embed=embed)
         else:
             await ctx.respond(
                 f"{ctx.member.display_name} got it wrong, the answer is {self.answer.split(",")[0].split("(")[0].strip()}"
             )
-            embed = ctx.message.embeds[0]
             embed.color = "ff0000"
-            await ctx.edit_response(embed=embed)
+        embed.set_footer(text=f"{ctx.member.display_name} guessed {self.label}!", icon=ctx.member.display_avatar_url)
+        await ctx.edit_response(embed=embed)
         self.view.stop()
 
 
@@ -80,6 +79,7 @@ class Game:
 
     async def callback(self, ctx: crescent.Context):
         await ctx.defer()
+        self.ctx = ctx
         words, englishes = await self.get_words()
         language_code: str = await self.get_language_code(words)
         choice_languages: list[str] = []
@@ -109,10 +109,11 @@ class Game:
 
     async def build_embed(self, words: list[str], englishes: list[str]):
         embed = hikari.Embed(title="Guess the language!", color="C721B1")
+        embed.set_footer(text=f"{self.ctx.member.display_name} is playing", icon=self.ctx.member.display_avatar_url)
         for word, english in zip(words, englishes):
             if self.difficulty == 4:
                 english = random.choice([english, "???"])
-            embed.add_field(name=word, value=english)
+            embed.add_field(name=word, value=english, inline=True)
         return embed
 
     async def get_words(self):
