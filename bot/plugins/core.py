@@ -75,7 +75,7 @@ class Game:
         int,
         "Difficulty of the game",
         default=2,
-        choices=[("easy", 2), ("normal", 4)],
+        choices=[("easy", 2), ("normal", 3), ("hard", 4)],
     )
 
     async def callback(self, ctx: crescent.Context):
@@ -110,6 +110,8 @@ class Game:
     async def build_embed(self, words: list[str], englishes: list[str]):
         embed = hikari.Embed(title="Guess the language!", color="C721B1")
         for word, english in zip(words, englishes):
+            if self.difficulty == 4:
+                english = random.choice([english, "???"])
             embed.add_field(name=word, value=english)
         return embed
 
