@@ -128,8 +128,7 @@ class Game:
                 return (words, englishes)
 
     async def get_language_code(self, words: list[str]):
-        for word in words:
-            detected_languages = detectlanguage.detect(word)
-            for detected_language in detected_languages:
-                if detected_language["isReliable"]:
-                    return detected_language["language"]
+        detected_languages = detectlanguage.detect(' '.join(words))
+        for detected_language in detected_languages:
+            if detected_language["isReliable"]:
+                return detected_language["language"]
