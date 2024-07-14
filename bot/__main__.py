@@ -10,6 +10,7 @@ from bot.env import secret
 @dataclass
 class Model:
     miru: miru.Client
+    table: dict
 
 
 def main():
@@ -18,7 +19,7 @@ def main():
         token=secret.TOKEN, banner=None, intents=intents, force_color=True
     )
     miru_client = miru.Client(bot)
-    crescent_client = crescent.Client(bot, Model(miru_client))
+    crescent_client = crescent.Client(bot, Model(miru_client, {}))
     crescent_client.plugins.load_folder("bot.plugins")
     bot.run()
 
