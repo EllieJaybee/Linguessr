@@ -28,7 +28,7 @@ class Game:
         int,
         "Difficulty of the game",
         default=2,
-        choices=[("easy", 2), ("normal", 3), ("hard", 4)],
+        choices=[("easy", 2), ("normal", 3), ("hard", 4), ("insane", 8)],
     )
 
     async def callback(self, ctx: crescent.Context):
@@ -57,10 +57,7 @@ class Game:
         filtered_table_keys.remove(code)
         for wrong_key in random.sample(filtered_table_keys, self.difficulty):
             choice_languages.append(
-                plugin.model.table[wrong_key]
-                .split(",")[0]
-                .split("(")[0]
-                .strip()
+                plugin.model.table[wrong_key].split(",")[0].split("(")[0].strip()
             )
         return choice_languages
 
@@ -70,11 +67,23 @@ class Game:
             text=f"{self.ctx.member.display_name} is playing",
             icon=self.ctx.member.display_avatar_url,
         )
-        for word, english in zip(words, englishes):
-            if self.difficulty == 4:
-                english = random.choice([english, "???"])
-            embed.add_field(name=word, value=english, inline=True)
+        await self.build_fields(words, englishes, embed)
         return embed
+
+    async def build_fields(
+        self, words: list[str], englishes: list[str], embed: hikari.Embed
+    ):
+        for word, english in zip(words, englishes):
+            if self.difficulty >= 4:
+                english = random.choice([english, "???"])
+            if (self.difficulty >= 6) and (random.randint(1, 6) >= 3):
+                obfuscated_characters = []
+                for char in list(word):
+                    if random.randint(1, 6) >= 5:
+                        char = "\\*"
+                    obfuscated_characters.append(char)
+                word = "".join(obfuscated_characters)
+            embed.add_field(name=word, value=english, inline=True)
 
     async def get_words(self):
         async with aiohttp.ClientSession() as session:
