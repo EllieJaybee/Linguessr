@@ -53,11 +53,11 @@ class Game:
 
     async def get_wrong_languages(self, code):
         choice_languages: list[str] = []
-        filtered_table_keys = list(language_table.keys())
+        filtered_table_keys = list(plugin.model.table.keys())
         filtered_table_keys.remove(code)
-        for _ in range(self.difficulty):
+        for wrong_key in random.sample(filtered_table_keys, self.difficulty):
             choice_languages.append(
-                language_table[random.choice(filtered_table_keys)]
+                plugin.model.table[wrong_key]
                 .split(",")[0]
                 .split("(")[0]
                 .strip()
