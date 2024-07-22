@@ -25,3 +25,9 @@ async def fetch_language_table(_: hikari.StartedEvent):
                 name = row.find_all("td")[0].get_text().strip()
                 code = row.find_all("td")[1].get_text().strip()
                 plugin.model.table[code] = name
+    plugin.model.table["bh"] = "Bihari"
+    plugin.model.table["iw"] = "Hebrew"
+    plugin.model.table["ji"] = "Yiddish"
+    plugin.model.table["jw"] = "Javanese"
+    plugin.model.table["mo"] = "Moldovan"
+    plugin.model.table["sh"] = "Serbo-Croatian"
