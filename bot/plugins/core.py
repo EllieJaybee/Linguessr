@@ -15,6 +15,8 @@ plugin = Plugin()
 
 detectlanguage.configuration.api_key = LANGKEY
 
+class UnknownLanguageError(ValueError):
+    pass
 
 @plugin.include
 @crescent.command(
@@ -54,7 +56,11 @@ class Game:
     async def get_wrong_languages(self, code):
         choice_languages: list[str] = []
         filtered_table_keys = list(plugin.model.table.keys())
-        filtered_table_keys.remove(code)
+        try:
+            filtered_table_keys.remove(code)
+        except ValueError as e:
+            print(f"Offending langcode is {code}")
+            raise e
         for wrong_key in random.sample(filtered_table_keys, self.difficulty):
             choice_languages.append(
                 plugin.model.table[wrong_key].split(",")[0].split("(")[0].strip()
@@ -102,3 +108,8 @@ class Game:
         for detected_language in detected_languages:
             if detected_language["isReliable"]:
                 return detected_language["language"]
+
+@plugin.include
+@crescent.catch_command(UnknownLanguageError)
+async def on_unknown_lang(exc: UnknownLanguageError, ctx: crescent.Context):
+    await ctx.respond("Error occured, please report this to bot maintainer")
