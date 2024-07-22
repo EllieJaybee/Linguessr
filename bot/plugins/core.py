@@ -49,8 +49,8 @@ class Game:
         gameview = GameView()
         for choice_language in choice_languages:
             gameview.add_item(GameButton(choice_language, language, self.ctx.user.id))
-        await self.ctx.respond(embed=embed, components=gameview)
-        plugin.model.miru.start_view(gameview)
+        message = await self.ctx.respond(embed=embed, components=gameview, ensure_message=True)
+        plugin.model.miru.start_view(gameview, bind_to=message)
         await gameview.wait()
 
     async def get_wrong_languages(self, code):
