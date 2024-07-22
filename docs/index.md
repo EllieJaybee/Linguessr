@@ -6,4 +6,6 @@
 
 Example:
 
-![alt text](assets/input_example.png)
+![input example](assets/input_example.png)
+
+![output example](assets/output_example.png)
