@@ -21,7 +21,7 @@ class UnknownLanguageError(ValueError):
 @plugin.include
 @crescent.command(
     name="play",
-    description="Start playing linguessr",
+    description="Start playing Linguessr",
     dm_enabled=False,
     default_member_permissions=hikari.Permissions.USE_APPLICATION_COMMANDS,
 )
