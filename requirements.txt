@@ -2,3 +2,4 @@ beautifulsoup4
 detectlanguage
 hikari-crescent
 hikari-miru
+mkdocs-material
