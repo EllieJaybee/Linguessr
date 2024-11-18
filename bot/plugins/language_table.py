@@ -20,7 +20,7 @@ async def fetch_language_table(_: hikari.StartedEvent):
         ) as response:
             soup = bs(await response.read(), "html.parser")
             table = soup.find(id="Table", class_="wikitable sortable")
-            rows = table.find_all("tr")[1:]
+            rows = table.find_all("tr")[2:]
             for row in rows:
                 name = row.find_all("td")[0].get_text().strip()
                 code = row.find_all("td")[1].get_text().strip()
